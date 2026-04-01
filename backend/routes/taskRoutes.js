@@ -2,7 +2,7 @@ import express from 'express'
 import Project from '../models/Project.js'
 import Task from '../models/Task.js'
 import { authMiddleware } from '../utils/auth.js'
-import { isProjectOwner } from '../utils/projectAuth.js'
+import { isProjectCollaborator, isProjectOwner } from '../utils/projectAuth.js'
 
 const router = express.Router({ mergeParams: true })
  
@@ -58,8 +58,8 @@ router.get('/', async (req, res) => {
       return res.status(404).json({ message: 'No project found with this project ID' })
     }
 
-    // check if the user owns the specified project
-    if (!isProjectOwner(project.owner, req.user._id)) {
+    // check if the user owns the specified project, or is a collaborator
+    if (!isProjectOwner(project.owner, req.user._id) && !isProjectCollaborator(project.collaborators, req.user._id)) {
       return res.status(403).json({ message: 'User not authorized to view tasks belonging to this this project' })
     }
 
@@ -91,8 +91,8 @@ router.put('/:taskId', async (req, res) => {
       return res.status(404).json({ message: 'No parent project found for this task' })
     }
 
-    // check if the user owns the project for the specified task
-    if (!isProjectOwner(project.owner, req.user._id)) {
+    // check if the user owns the project for the specified task, or is a collaborator
+    if (!isProjectOwner(project.owner, req.user._id) && !isProjectCollaborator(project.collaborators, req.user._id)) {
       return res.status(403).json({ message: 'User not authorized to update tasks belonging to this this project' })
     }
 

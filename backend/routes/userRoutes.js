@@ -9,7 +9,7 @@ const router = express.Router()
 const secret = process.env.JWT_SECRET
 const expiration = '24h'
 
-// POST '/api/user/register' - Create new user account
+// POST '/api/users/register' - Create new user account
 router.post('/register', async (req, res) => {
     try {
 
@@ -39,7 +39,7 @@ router.post('/register', async (req, res) => {
     }
 })
 
-// POST '/api/user/login' - Login to existing user account
+// POST '/api/users/login' - Login to existing user account
 router.post('/login', async (req, res) => {
     try {
 
@@ -106,6 +106,20 @@ router.use(authMiddleware)
 // after verification, send back the user details (payload)
 router.get('/', (req, res) => {
     res.status(200).json(req.user)
+})
+
+// POST '/api/users/list' - return a list of all users for use with collaborators
+router.get('/list', async (req, res) => {
+    try {
+        // lookup all users
+        const users = await User.find({},'username')
+
+        // respond with the token and user data in an object
+        res.status(200).json(users)
+    }
+    catch(err) {
+        res.status(400).json({ message: err.emssage })
+    }
 })
 
 export default router

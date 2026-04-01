@@ -3,7 +3,7 @@ import { projectClient } from "../clients/api"
 import { useEffect } from "react"
 import { useState } from "react"
 
-function Project({ project, setProjects }) {
+function Project({ project, setProjects, isOwner }) {
     const [tasks, setTasks] = useState([])
 
     useEffect(() => {
@@ -38,9 +38,15 @@ function Project({ project, setProjects }) {
             <li>
                 <h3>{project.name}</h3>
                 <p>{project.description}</p>
-                {(tasks.length>0) && <p>{tasks.length} Tasks</p>}
+                <p>Owner: {project.owner.username}</p>
+                {(project.collaborators.length>0) &&
+                    <p>{project.collaborators.length} Collaborator{project.collaborators.length>1 ? 's' : ''}</p>
+                }
+                {(tasks.length>0) &&
+                    <p>{tasks.length} Task{tasks.length>1 ? 's' : ''}</p>
+                }
                 <Link to={`/project/${project._id}`}><button>View</button></Link>
-                <button onClick={handleDelete}>Delete</button>
+                {isOwner && <button onClick={handleDelete}>Delete</button>}
             </li>
         </>
     )
