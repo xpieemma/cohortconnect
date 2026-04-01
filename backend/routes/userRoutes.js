@@ -3,13 +3,14 @@ import User from '../models/User.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import passport from '../config/passport.js'
+import { authMiddleware } from '../utils/auth.js'
 
 const router = express.Router()
 const secret = process.env.JWT_SECRET
 const expiration = '24h'
 
 // POST '/api/user/register' - Create new user account
-router.post('/', async (req, res) => {
+router.post('/register', async (req, res) => {
     try {
 
         // hash the password with bcrypt
@@ -39,7 +40,7 @@ router.post('/', async (req, res) => {
 })
 
 // POST '/api/user/login' - Login to existing user account
-router.post('/', async (req, res) => {
+router.post('/login', async (req, res) => {
     try {
 
         // lookup the user by email
@@ -79,7 +80,7 @@ router.get(
 router.get(
   '/auth/github/callback',
   passport.authenticate('github', {
-    failureRedirect: '/login', // Where to redirect if user denies
+    failureRedirect: `${process.env.CLIENT_ORIGIN}/login`, // Where to redirect if user denies
     session: false // We are using tokens, not sessions
   }),
   (req, res) => {
@@ -95,8 +96,16 @@ router.get(
     const token = jwt.sign({ data: payload }, secret, { expiresIn: expiration})
 
     // Redirect the user to the frontend with the token, or send it in the response
-    res.redirect(`http://localhost:3000/success?token=${token}`);
+    res.redirect(`${process.env.CLIENT_ORIGIN}/login?token=${token}`);
   }
 );
+
+// verify logged in user's token
+router.use(authMiddleware)
+
+// after verification, send back the user details (payload)
+router.get('/', (req, res) => {
+    res.status(200).json(req.user)
+})
 
 export default router
