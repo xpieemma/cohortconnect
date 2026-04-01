@@ -80,6 +80,7 @@ function ProjectForm({ setProjects }) {
                         id="name"
                         name="name"
                         type="text"
+                        autoComplete="off"
                         required
                     />
                 </div>
@@ -99,19 +100,19 @@ function ProjectForm({ setProjects }) {
                     <fieldset>
                         <legend>Collaborators:</legend>
                         
-                    {users.map(user => (
-                    <div key={user._id}>
+                        {users.map(user => (
+                        <div key={user._id}>
                             <label htmlFor={`collaborators_${user._id}`}>
-                        <input
-                            type="checkbox"
+                            <input
+                                type="checkbox"
                                 id={`collaborators_${user._id}`}
-                            value={user._id}
-                            checked={collaborators.includes(user._id)}
-                            onChange={(e) => handleCheckboxChange(e)}
-                        />
+                                value={user._id}
+                                checked={collaborators.includes(user._id)}
+                                onChange={(e) => handleCheckboxChange(e)}
+                            />
                             {user.username}</label>
-                    </div>
-                    ))}
+                        </div>
+                        ))}
                     </fieldset>
                 </div>
 
