@@ -48,12 +48,11 @@ function ProjectForm({ setProjects }) {
 
                 <div className="form-row">
                     <label htmlFor="description">Description:</label>
-                    <input
+                    <textarea
                         value={form.description}
                         onChange={handleChange}
                         id="description"
                         name="description"
-                        type="text"
                         required
                     />
                 </div>
