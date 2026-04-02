@@ -6,17 +6,20 @@ export const useForm = (formType = 'project') => {
     const initialFormValue = { [itemName]: '', description: '' }
     const initialCollaboratorsValue = []
 
-    const defaultFormValue = formType===initialFormValue
-
+    const [modal, setModal] = useState(false)
     const [showForm, setShowForm] = useState(false)
-    const [form, setForm] = useState(defaultFormValue)
+    const [form, setForm] = useState(initialFormValue)
     const [collaborators, setCollaborators] = useState(initialCollaboratorsValue)
     
     // clear controlled form fields, by updating state variables
     const resetForm = () => {
-        setForm(defaultFormValue)
+        setForm(initialFormValue)
         setCollaborators(initialCollaboratorsValue)
-        setShowForm(!showForm)
+        setModal(false)
+    }
+
+    const toggleModal = () => {
+        setModal(!modal)
     }
     
     // update controlled form fields, by updating state variables
@@ -41,5 +44,5 @@ export const useForm = (formType = 'project') => {
         }
     }
 
-    return { showForm, setShowForm, form, setForm, collaborators, setCollaborators, resetForm, handleChange, handleCheckboxChange }
+    return { modal, toggleModal, showForm, setShowForm, form, setForm, collaborators, setCollaborators, resetForm, handleChange, handleCheckboxChange }
 }
