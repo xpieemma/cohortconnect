@@ -46,7 +46,7 @@ function Register() {
     }
 
     return (
-        <div>
+        <section>
             <h1>Register</h1>
             <form onSubmit={handleSubmit}>
                 <div className="form-row">
@@ -88,15 +88,19 @@ function Register() {
                     />
                 </div>
 
-                <button>Register</button>
+                <div className="buttons">
+                    <button>Register</button>
+                </div>
 
                 <p className="alternative">Already have an account? <Link to="/login">Login!</Link></p>
                 
             </form>
             
-            <a href={import.meta.env.VITE_BASE_URL+"/api/users/auth/github"}><button>Signup with GitHub</button></a>
-            
-        </div>
+            <div className="buttons">
+                <a href={import.meta.env.VITE_BASE_URL+"/api/users/auth/github"}><button>Signup with GitHub</button></a>
+            </div>
+
+        </section>
     )
 }
 

@@ -51,25 +51,26 @@ function Task({ task, setTasks }) {
     }
 
     return (
-        <>
+        <li className="card">
             <h3>{task.title}</h3>
-            <p>{task.description}</p>
 
-            <div className="form-row">
+            <div className="status">
                 <label>Status:
-                <select
-                    value={task.status}
-                    onChange={handleChange}
-                    name="status"
-                    type="text"
-                    required
-                >
-                    <option value="To Do">To Do</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Done">Done</option>
-                </select>
+                    <select
+                        value={task.status}
+                        onChange={handleChange}
+                        name="status"
+                        type="text"
+                        required
+                    >
+                        <option value="To Do">To Do</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Done">Done</option>
+                    </select>
                 </label>
             </div>
+            
+            <p>{task.description}</p>
 
             {
             project && isProjectOwner(project.owner,user._id) &&
@@ -78,7 +79,7 @@ function Task({ task, setTasks }) {
                 <button onClick={handleDelete}>Delete</button>
             </div>
             }
-        </>
+        </li>
     )
 }
 

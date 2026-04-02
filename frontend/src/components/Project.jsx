@@ -40,7 +40,7 @@ function Project({ project, setProjects, isOwner }) {
 
     return (
         <>
-            <li>
+            <li className="card">
                 <h3>{project.name}</h3>
                 <p>{project.description}</p>
                 <p>Owner: {project.owner.username}</p>

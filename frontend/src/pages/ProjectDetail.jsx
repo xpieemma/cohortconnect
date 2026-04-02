@@ -79,7 +79,9 @@ function ProjectDetail() {
                 <section id="project-tasks">
                     <h2>Tasks</h2>
                     {tasks.length > 0 ?
-                        tasks.map(task => <Task key={task._id} task={task} setTasks={setTasks} />)
+                        <ul>
+                            {tasks.map(task => <Task key={task._id} task={task} setTasks={setTasks} />)}
+                        </ul>
                         :
                         <p>Currently no tasks assigned to this project.</p>
                     }

@@ -8,10 +8,9 @@
     background-color: #DDD;
     width: 100%;
     text-align: center;
-    position: relative;
 }
 .progress-indicator {
-    background-color: greenyellow;
+    background-color: #7869bc;
 }
 .progress-label {
     font-size: 12px;

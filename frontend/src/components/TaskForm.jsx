@@ -52,8 +52,6 @@ function TaskForm({ projectId, setTasks, task, btnText = '+', headingText = 'Tas
                     <div className="overlay" onClick={toggleModal}></div>
                     <div className="modal-content">
 
-                        <button onClick={toggleModal}>Close</button>
-
                         <h3>{headingText}</h3>
 
                         <form onSubmit={handleSubmit}>
@@ -97,8 +95,10 @@ function TaskForm({ projectId, setTasks, task, btnText = '+', headingText = 'Tas
                                 </select>
                             </div>
 
-                            <button type="submit">Submit</button>
-                            <button type="reset" onClick={()=>resetForm()}>Cancel</button>
+                            <div className="buttons">
+                                <button type="submit">Submit</button>
+                                <button type="reset" onClick={()=>resetForm()}>Cancel</button>
+                            </div>
 
                         </form>
                     </div>

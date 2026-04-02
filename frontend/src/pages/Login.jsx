@@ -85,7 +85,7 @@ function Login() {
     }
 
     return (
-        <div>
+        <section>
             <h1>Login</h1>
             <form onSubmit={handleSubmit}>
 
@@ -115,15 +115,19 @@ function Login() {
                     />
                 </div>
 
-                <button>Login</button>
+                <div className="buttons">
+                    <button>Login</button>
+                </div>
 
                 <p className="alternative">Don't have an account? <Link to="/register">Create an account!</Link></p>
 
             </form>
             
-            <a href={import.meta.env.VITE_BASE_URL+"/api/users/auth/github"}><button>Login with GitHub</button></a>
+            <div className="buttons">
+                <a href={import.meta.env.VITE_BASE_URL+"/api/users/auth/github"}><button>Login with GitHub</button></a>
+            </div>
             
-        </div>
+        </section>
     )
 }
 
