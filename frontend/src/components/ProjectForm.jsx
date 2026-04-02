@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { projectClient, userClient } from "../clients/api"
 import { useUser } from "../context/UserContext";
-import { useForm } from "../hook/useForm";
+import { useForm } from "../hooks/useForm";
 import './Modal/Modal.css'
 
 function ProjectForm({ project, setProjects, btnText = '+', headingText = 'Project' }) {

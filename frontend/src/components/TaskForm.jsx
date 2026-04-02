@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import { projectClient, taskClient } from "../clients/api"
-import { useForm } from "../hook/useForm"
+import { useForm } from "../hooks/useForm"
 import './Modal/Modal.css'
 
 function TaskForm({ projectId, setTasks, task, btnText = '+', headingText = 'Task'  }) {
