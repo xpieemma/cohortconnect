@@ -1,6 +1,9 @@
 export function isProjectOwner(projectOwner, userId) {
     // If populated, item is an object, if not, item is ObjectId
-    return projectOwner?._id ? projectOwner._id === userId : projectOwner === userId
+    const val = projectOwner._id ? projectOwner._id === userId : projectOwner === userId
+    console.log(val);
+    
+    return val
 }
 
 export function isProjectCollaborator(collaborators, userId) {

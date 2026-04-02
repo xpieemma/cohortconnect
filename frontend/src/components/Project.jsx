@@ -49,11 +49,11 @@ function Project({ project, setProjects, isOwner }) {
                     <p>{tasks.length} Task{tasks.length>1 ? 's' : ''}</p>
                 }
                 <div className="buttons">
-                    <Link to={`/project/${project._id}`}><button>View</button></Link>
+                    <Link to={`/project/${project._id}`}><button>View Details</button></Link>
                     {
                         isOwner &&
                         <>
-                            <ProjectForm setProjects={setProjects} project={project} btnText={'Update'} headingText={'Update Project'} />
+                            <ProjectForm setProjects={setProjects} project={project} btnText={'Edit'} headingText={'Update Project'} />
                             <button onClick={handleDelete}>Delete</button>
                         </>
                     }

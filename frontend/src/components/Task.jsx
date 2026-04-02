@@ -1,7 +1,28 @@
-import { taskClient } from "../clients/api"
+import { useEffect } from "react"
+import { taskClient, projectClient } from "../clients/api"
+import { useUser } from "../context/UserContext"
+import { isProjectOwner } from "../utils/projectAuth"
 import TaskForm from "./TaskForm"
+import { useState } from "react"
 
 function Task({ task, setTasks }) {
+
+    const { user } = useUser()
+    const [ project, setProject ] = useState(null)
+    
+    useEffect(() => {
+        const getProjectData = async () => {
+            try {
+                const { data } = await projectClient.get(`/${task.project}`)
+                setProject(data)
+            }
+            catch(err) {
+                console.dir(err)
+                alert(err.response.data.message)
+            }
+        }
+        getProjectData()
+    }, [])
 
     const handleChange = async (e) => {
         try {
@@ -10,6 +31,19 @@ function Task({ task, setTasks }) {
             
             // update the task in our backend
             await taskClient.put(`/${task._id}`, {status: e.target.value})
+        }
+        catch(err) {
+            console.dir(err)
+            alert(err.response.data.message)
+        }
+    }
+
+    const handleDelete = async () => {
+        try {
+            // remove task from database
+            await taskClient.delete(`/${task._id}`)
+            // remove task from state
+            setTasks(tasks => tasks.filter(t => t._id !== task._id))
         }
         catch(err) {
             console.dir(err)
@@ -38,9 +72,13 @@ function Task({ task, setTasks }) {
                 </label>
             </div>
 
+            {
+            project && isProjectOwner(project.owner,user._id) &&
             <div className="buttons">
                 <TaskForm projectId={task.project} task={task} setTasks={setTasks} btnText={'Edit'} headingText={'Edit Task'} />
+                <button onClick={handleDelete}>Delete</button>
             </div>
+            }
         </>
     )
 }

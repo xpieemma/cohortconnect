@@ -60,10 +60,10 @@ function ProjectDetail() {
                         {isProjectOwner(project.owner,user._id) ?
                             <> You are the owner of this project, and have full permissions.</>
                             :
-                            <> You are a collaborator and only have access to update task status.</>
+                            <> You are a collaborator and only have access to update tasks statuses.</>
                         }
                     </p>
-                    {isProjectOwner && 
+                    {isProjectOwner(project.owner,user._id) && 
                         <div className="buttons">
                             <ProjectForm setProjects={setProject} project={project} btnText={'Update Project'} headingText={'Update Project'} />
                             <TaskForm projectId={projectId} setTasks={setTasks} btnText={'Add Task'} headingText={'Add New Task'} />
