@@ -49,6 +49,9 @@ router.post('/login', async (req, res) => {
         // check if user exists (if false respond with an error)
         if(!user) return res.status(404).json({ message: 'Invalid email or password' })
 
+        // check if user exists, but there is no password (i.e. they registered with GitHub OAuth and don't have a password set) - if so, respond with an error
+        if(!user.password && user.githubId) return res.status(404).json({ message: 'Invalid email or password, try logging in with GitHub' })
+
         // check if hashed passwords match using bcrpty (if false respond with an error)
         const correctPassword = await bcrypt.compare(req.body.password, user.password)
         if(!correctPassword) return res.status(404).json({ message: 'Invalid email or password' })
