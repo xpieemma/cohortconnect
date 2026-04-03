@@ -33,7 +33,7 @@ A collaborative project management tool for small teams.
 | POST | /api/users/register | Create a user |
 | POST | /api/users/login | User login |
 | GET | /api/users/| Verify a user |
-| GET | /api/users/list| Get a list of users. This can only be accessed by an authenticated user |
+| GET | /api/users/list| Get a list of users. This can only be accessed by an authenticated user. |
 
 **Project Endpoints**
 
@@ -49,10 +49,12 @@ A collaborative project management tool for small teams.
 
 | Method | Endpoint| Description |
 | :--- | :--- | :--- |
-| POST | /api/:projectId/tasks | Create a task associated with a project |
+| POST | /api/projects/:projectId/tasks | Create a task associated with a project |
 | GET | /api/projects/:projectId/tasks | Retrieves tasks for a Project ID |
 | PUT | /api/tasks/:taskId | Update a task with it's ID |
+| PUT | /api/projects/:projectId/api/tasks/:taskId | Update a task with it's ID |
 | DELETE | /api/tasks/:taskId | Delete a task with it's ID |
+| DELETE | /api/projects/:projectId/api/tasks/:taskId | Delete a task with it's ID |
 
 
 ## ⚙️ Installation and Setup
