@@ -19,26 +19,21 @@ export const taskClient = axios.create({
     baseURL: BASE_URL+'/api/tasks'
 })
 
-const waitTime = 2000;
-
-userClient.interceptors.request.use(async (req) => {
-    await new Promise(resolve => setTimeout(resolve, waitTime))
+userClient.interceptors.request.use((req) => {
     if (token()) {
         req.headers.Authorization = `Bearer ${token()}`
     }
     return req
 })
 
-projectClient.interceptors.request.use(async (req) => {
-    await new Promise(resolve => setTimeout(resolve, waitTime))
+projectClient.interceptors.request.use((req) => {
     if (token()) {
         req.headers.Authorization = `Bearer ${token()}`
     }
     return req
 })
 
-taskClient.interceptors.request.use(async (req) => {
-    await new Promise(resolve => setTimeout(resolve, waitTime))
+taskClient.interceptors.request.use((req) => {
     if (token()) {
         req.headers.Authorization = `Bearer ${token()}`
     }
