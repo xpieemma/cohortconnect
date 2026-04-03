@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { userClient } from "../clients/api"
 import { useUser } from "../context/UserContext"
+import { useLoading } from "../context/LoadingContext"
 import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { jwtDecode } from 'jwt-decode'
 
@@ -12,6 +13,8 @@ function Login() {
     const oAuthToken = searchParams.get("token"); 
 
     const { setUser } = useUser()
+
+    const { startLoading, stopLoading } = useLoading()
 
     const navigate = useNavigate()
 
@@ -64,6 +67,7 @@ function Login() {
         e.preventDefault()
 
         try {
+            startLoading()
 
             // send the form data to our backend
             const { data } = await userClient.post('/login', form)
@@ -81,6 +85,9 @@ function Login() {
         catch(err) {
             console.dir(err)
             alert(err.response.data.message)
+        }
+        finally {
+            stopLoading()
         }
     }
 

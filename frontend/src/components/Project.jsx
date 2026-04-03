@@ -2,14 +2,17 @@ import { Link } from "react-router-dom"
 import { projectClient } from "../clients/api"
 import { useEffect } from "react"
 import { useState } from "react"
+import { useLoading } from "../context/LoadingContext"
 import ProjectForm from "./ProjectForm"
 import ProgressBar from "./ProgressBar/ProgressBar"
 
 function Project({ project, setProjects, isOwner }) {
     const [tasks, setTasks] = useState([])
+    const { startLoading, stopLoading } = useLoading()
 
     useEffect(() => {
         const getTaskData = async () => {
+            startLoading()
             try {
                 const { data } = await projectClient.get(`/${project._id}/tasks`)
                 setTasks(data)
@@ -18,12 +21,16 @@ function Project({ project, setProjects, isOwner }) {
                 console.dir(err)
                 alert(err.response.data.message)
             }
+            finally {
+                stopLoading()
+            }
         }
         getTaskData()
     },[])
 
     const handleDelete = async () => {
         try {
+            startLoading()
             // remove project from database
             await projectClient.delete(`/${project._id}`)
             // remove project from state
@@ -32,6 +39,9 @@ function Project({ project, setProjects, isOwner }) {
         catch(err) {
             console.dir(err)
             alert(err.response.data.message)
+        }
+        finally {
+            stopLoading()
         }
     }
 

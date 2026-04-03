@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { taskClient, projectClient } from "../clients/api"
 import { useUser } from "../context/UserContext"
+import { useLoading } from "../context/LoadingContext"
 import { isProjectOwner } from "../utils/projectAuth"
 import TaskForm from "./TaskForm"
 
@@ -8,10 +9,12 @@ function Task({ task, setTasks }) {
 
     const { user } = useUser()
     const [ project, setProject ] = useState(null)
+    const { startLoading, stopLoading } = useLoading()
     
     useEffect(() => {
         const getProjectData = async () => {
             try {
+                startLoading()
                 const { data } = await projectClient.get(`/${task.project}`)
                 setProject(data)
             }
@@ -19,12 +22,16 @@ function Task({ task, setTasks }) {
                 console.dir(err)
                 alert(err.response.data.message)
             }
+            finally {
+                stopLoading()
+            }
         }
         getProjectData()
     }, [])
 
     const handleChange = async (e) => {
         try {
+            startLoading()
             // update the tasks state
             setTasks(tasks => tasks.map(t => (t._id === task._id)?{...t, status: e.target.value}:t))
             
@@ -35,10 +42,14 @@ function Task({ task, setTasks }) {
             console.dir(err)
             alert(err.response.data.message)
         }
+        finally {
+            stopLoading()
+        }
     }
 
     const handleDelete = async () => {
         try {
+            startLoading()
             // remove task from database
             await taskClient.delete(`/${task._id}`)
             // remove task from state
@@ -47,6 +58,9 @@ function Task({ task, setTasks }) {
         catch(err) {
             console.dir(err)
             alert(err.response.data.message)
+        }
+        finally {
+            stopLoading()
         }
     }
 
@@ -69,7 +83,7 @@ function Task({ task, setTasks }) {
                     </select>
                 </label>
             </div>
-            
+
             <p>{task.description}</p>
 
             {

@@ -5,6 +5,7 @@ import { useState } from "react"
 import Task from "../components/Task"
 import TaskForm from "../components/TaskForm"
 import { useUser } from "../context/UserContext"
+import { useLoading } from "../context/LoadingContext"
 import { isProjectOwner } from "../utils/projectAuth"
 import ProjectForm from "../components/ProjectForm"
 import ProgressBar from "../components/ProgressBar/ProgressBar"
@@ -14,6 +15,7 @@ function ProjectDetail() {
     const { projectId } = useParams()
     const [ project, setProject ] = useState(null)
     const [ tasks, setTasks ] = useState([])
+    const { startLoading, stopLoading } = useLoading()
 
     useEffect(() => {
         const getProjectData = async () => {
@@ -36,9 +38,22 @@ function ProjectDetail() {
                 alert(err.response.data.message)
             }
         }
-        getProjectData()
-        getTaskData()
-    }, [])
+        const getData = async () => {
+            startLoading()
+            try {
+                await getProjectData()
+                await getTaskData()
+            }
+            catch(err) {
+                console.dir(err)
+                alert(err.response.data.message)
+            }
+            finally {
+                stopLoading()
+            }
+        }
+        getData()
+    }, [projectId])
 
     const totalTasks = tasks.length;
     const completedTasks = tasks.length>0 ? tasks.filter(task => task.status === 'Done').length : tasks.length

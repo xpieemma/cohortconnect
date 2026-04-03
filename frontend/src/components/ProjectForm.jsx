@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react"
 import { projectClient, userClient } from "../clients/api"
 import { useUser } from "../context/UserContext";
+import { useLoading } from "../context/LoadingContext"
 import { useForm } from "../hooks/useForm";
 import './Modal/Modal.css'
 
 function ProjectForm({ project, setProjects, btnText = '+', headingText = 'Project' }) {
     const { user } = useUser()
+    const { startLoading, stopLoading } = useLoading()
     const [ users, setUsers ] = useState([])
     const {
             modal,
@@ -60,6 +62,7 @@ function ProjectForm({ project, setProjects, btnText = '+', headingText = 'Proje
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
+            startLoading()
 
             if(project) {
             // if updating existing project
@@ -98,6 +101,9 @@ function ProjectForm({ project, setProjects, btnText = '+', headingText = 'Proje
         catch(err) {console.log(form)
             console.dir(err)
             alert(err.response.data.message)
+        }
+        finally {
+            stopLoading()
         }
     }
 

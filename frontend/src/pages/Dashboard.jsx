@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useUser } from "../context/UserContext"
+import { useLoading } from "../context/LoadingContext"
 import Project from "../components/Project"
 import ProjectForm from "../components/ProjectForm"
 import { projectClient } from "../clients/api"
@@ -9,9 +10,11 @@ function Dashboard() {
 
     const { user } = useUser()
     const [projects, setProjects] = useState([])
+    const { startLoading, stopLoading } = useLoading()
 
     useEffect(() => {
         async function getData() {
+            startLoading()
             try {
                 // get user posts from DB
                 const { data } = await projectClient.get('/')
@@ -21,6 +24,9 @@ function Dashboard() {
             }
             catch(err) {
                 console.dir(err)
+            }
+            finally {
+                stopLoading()
             }
         }
         getData()

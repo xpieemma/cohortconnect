@@ -1,9 +1,11 @@
 import { useEffect } from "react"
 import { projectClient, taskClient } from "../clients/api"
 import { useForm } from "../hooks/useForm"
+import { useLoading } from "../context/LoadingContext"
 import './Modal/Modal.css'
 
 function TaskForm({ projectId, setTasks, task, btnText = '+', headingText = 'Task'  }) {
+    const { startLoading, stopLoading } = useLoading()
     const {
         modal,
         toggleModal,
@@ -21,6 +23,7 @@ function TaskForm({ projectId, setTasks, task, btnText = '+', headingText = 'Tas
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        startLoading()
         try {
 
             if(task){
@@ -40,6 +43,9 @@ function TaskForm({ projectId, setTasks, task, btnText = '+', headingText = 'Tas
         catch(err) {
             console.dir(err)
             alert(err.response.data.message)
+        }
+        finally {
+            stopLoading()
         }
     }
 

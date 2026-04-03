@@ -1,9 +1,12 @@
 import { useState } from "react"
 import { useUser } from "../context/UserContext"
+import { useLoading } from "../context/LoadingContext"
 import { useNavigate, Link } from "react-router-dom"
 import { userClient } from "../clients/api"
 
 function Register() {
+
+    const { startLoading, stopLoading } = useLoading()
 
     const [form, setForm] = useState({
         username: '',
@@ -26,6 +29,7 @@ function Register() {
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
+            startLoading()
             // send the form data to our backend
             const { data } = await userClient.post('/register', form)
             console.log(data)
@@ -42,6 +46,9 @@ function Register() {
         catch(err) {
             console.dir(err)
             alert(err.response.data.message)
+        }
+        finally {
+            stopLoading()
         }
     }
 
