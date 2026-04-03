@@ -4,8 +4,8 @@ A collaborative project management tool for small teams.
 
 ## 🌐 Deployment
 
-* **Frontend:** 🔗 NOT_DEPLOYED_YET
-* **Backend:** 🔗 NOT_DEPLOYED_YET
+* **Frontend:** 🔗 https://pro-tasker-mw.netlify.app
+* **Backend:** 🔗 https://pro-tasker-35rc.onrender.com
 
 ## 💻 Technologies Used
 
