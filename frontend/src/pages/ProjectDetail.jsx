@@ -62,32 +62,36 @@ function ProjectDetail() {
         <>
             {project &&
             <>
-                <h1>{project.name}</h1>
+                <h1>Project: {project.name}</h1>
 
                 <section id="project-details">
-                    <p>Description: {project.description}</p>
-                    <p>Created: {new Date(project.createdAt).toLocaleDateString()}</p>
-                    <p>Owner: {project.owner.username}</p>
-                    <p>Collaborators:
-                    {project.collaborators.length>0 ?
-                        <> {project.collaborators.map(user => user.username).join(", ")}</>
-                        :
-                        <> None</>
-                    }
-                    </p>
-                    <p>Permissions:
-                        {isProjectOwner(project.owner,user._id) ?
-                            <> You are the owner of this project, and have full permissions.</>
+                    <p><span className="label">Description:</span> {project.description}</p>
+                    <div className="details">
+                        <p><span className="label">Created:</span> {new Date(project.createdAt).toLocaleDateString()}</p>
+                        <p><span className="label">Owner:</span> {project.owner.username}</p>
+                        <p><span className="label">Collaborators:</span>
+                        {project.collaborators.length>0 ?
+                            <> {project.collaborators.map(user => user.username).join(", ")}</>
                             :
-                            <> You are a collaborator and only have access to update tasks statuses.</>
+                            <> None</>
                         }
-                    </p>
-                    {isProjectOwner(project.owner,user._id) && 
-                        <div className="buttons">
-                            <ProjectForm setProjects={setProject} project={project} btnText={'Update Project'} headingText={'Update Project'} />
-                            <TaskForm projectId={projectId} setTasks={setTasks} btnText={'Add Task'} headingText={'Add New Task'} />
-                        </div>
-                    }
+                        </p>
+                        <p><span className="label">Permissions:</span>
+                            <span className="highlight">
+                            {isProjectOwner(project.owner,user._id) ?
+                                <> You are the owner of this project, and have full permissions.</>
+                                :
+                                <> You are a collaborator and only have access to update tasks statuses.</>
+                            }
+                            </span>
+                        </p>
+                        {isProjectOwner(project.owner,user._id) && 
+                            <div className="buttons">
+                                <ProjectForm setProjects={setProject} project={project} btnText={'Update Project'} headingText={'Update Project'} />
+                                <TaskForm projectId={projectId} setTasks={setTasks} btnText={'Add Task'} headingText={'Add New Task'} />
+                            </div>
+                        }
+                    </div>
                     <ProgressBar total={totalTasks} completed={completedTasks} />
                 </section>
 

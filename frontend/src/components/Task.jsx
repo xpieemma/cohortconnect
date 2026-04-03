@@ -66,23 +66,23 @@ function Task({ task, setTasks }) {
 
     return (
         <li className="card">
-            <h3>{task.title}</h3>
 
             <div className="status">
-                <label>Status:
                     <select
                         value={task.status}
                         onChange={handleChange}
                         name="status"
                         type="text"
+                        aria-label="Status"
                         required
                     >
                         <option value="To Do">To Do</option>
                         <option value="In Progress">In Progress</option>
                         <option value="Done">Done</option>
                     </select>
-                </label>
             </div>
+            
+            <h3>{task.title}</h3>
 
             <p>{task.description}</p>
 

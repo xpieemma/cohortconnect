@@ -9,8 +9,8 @@ function Navbar() {
 
     return (
         <>
-            <nav className="flex justify-left items-center gap-4 py-4 mb-4 border-b border-b-gray-200 pr-4">
-                <img src={logo} className="w-40 h-auto m-2 mr-auto" />
+            <nav className="">
+                <img src={logo} className="w-40 h-auto m-2 sm:mr-auto dark:brightness-0 dark:invert" />
                 <ul className="flex justify-center items-end gap-4">
                     {user ?
                         <>

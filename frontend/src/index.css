@@ -12,17 +12,21 @@
         --color-primary-link: #7869BC;
         --color-button-text: #FFFFFF;
         --color-button-bg: #7869BC;
+        --color-border: #DDD;
         --bg-img: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), url('./assets/bg.jpg');
         --bg-primary: #FFFFFF;
+        --bg-nav: rgba(255, 255, 255, 0.3);
         --bg-section: #F9FAFB;
     }
     .dark {
         --color-primary-text: #FFFFFF;
-        --color-primary-link: #9885ef;
+        --color-primary-link: #cabefd;
         --color-button-text: #FFFFFF;
         --color-button-bg: #4c3e89;
+        --color-border: #666667;
         --bg-img: #FFFFFF;
         --bg-primary: #030712;
+        --bg-nav: #333333;
         --bg-section: #111827;
     }
     body {
@@ -45,7 +49,9 @@
         padding: 20px;
     }
     nav {
-        background: rgba(255, 255, 255, 0.3)
+        background: var(--bg-nav);
+        @apply flex flex-col items-center justify-center sm:flex-row sm:justify-start gap-4 py-4 mb-4 pr-4;
+        @apply border-b border-[var(--color-border)];
     }
     h1 {
         @apply mb-8 text-4xl;
@@ -54,7 +60,7 @@
         @apply mb-8 text-2xl text-center;
     }
     h3 {
-        @apply mt-8 mb-2 text-2xl;
+        @apply mt-8 mb-2 text-2xl text-[var(--color-primary-link)] font-semibold;
     }
     p {
         @apply my-4;
@@ -80,8 +86,9 @@
         } */
     }
     section {
-        @apply rounded border border-gray-300 bg-gray-50 p-8 my-8;
+        @apply rounded p-8 my-8;
         @apply bg-[var(--bg-section)];
+        @apply border border-[var(--color-border)];
     }
     button {
         @apply rounded border border-gray-500 bg-gray-200 py-2 px-4 disabled:text-gray-300 disabled:border-gray-300 cursor-pointer;
@@ -99,16 +106,29 @@
     input,
     textarea,
     select {
-        @apply rounded border border-gray-500 bg-white placeholder:text-gray-500 px-2 py-2 my-2;
+        @apply rounded border bg-white placeholder:text-gray-500 px-2 py-2 my-2;
+        @apply border-[var(--color-border)]
     }
     input[type='checkbox'] {
         @apply mr-2;
     }
+    .status {
+        @apply inline;
+    }
     .status select {
         float: right;
-        @apply ml-2;
+        @apply mt-8;
     }
     .card {
         @apply mt-12 border-t border-gray-200
+    }
+    .details p {
+        @apply my-1 text-sm;
+    }
+    .label {
+        @apply font-semibold;
+    }
+    .highlight {
+        @apply text-[var(--color-primary-link)];
     }
 }
