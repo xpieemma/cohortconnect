@@ -10,10 +10,12 @@
     :root {
         --color-primary-text: #333333;
         --color-primary-link: #7869BC;
+        --color-primary-link-hover: #4c3e89;
         --color-project-name: #333333;
         --color-form-text: #333333;
         --color-button-text: #FFFFFF;
-        --color-button-bg: #7869BC;
+        --color-button-bg: var(--color-primary-link);
+        --color-button-bg-hover: var(--color-primary-link-hover);
         --color-border: #DDD;
         --bg-img: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), url('./assets/bg.jpg');
         --bg-primary: #FFFFFF;
@@ -24,10 +26,12 @@
     .dark {
         --color-primary-text: #FFFFFF;
         --color-primary-link: #cabefd;
+        --color-primary-link-hover: #7869BC;
         --color-project-name: #cabefd;
         --color-form-text: #333333;
         --color-button-text: #FFFFFF;
         --color-button-bg: #4c3e89;
+        --color-button-bg-hover: #7869BC;
         --color-border: #666667;
         --bg-img:  linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3)), url('./assets/bg.jpg');
         --bg-primary: #030712;
@@ -43,12 +47,8 @@
         /* Use @apply to use Tailwind utilities */
         @apply text-[var(--color-primary-text)];
         @apply bg-[var(--bg-primary)];
-
-        /* Or use standard CSS with Tailwind theme variables */
-        /* &:hover {
-            color: var(--color-blue-800);
-        } */
     }
+    .content-width,
     main {
         max-width: 800px;
         margin: 0 auto;
@@ -56,49 +56,50 @@
     }
     nav {
         background: var(--bg-nav);
-        @apply flex flex-col items-center justify-center sm:flex-row sm:justify-start gap-4 p-4 sm:mb-4;
+        @apply sm:mb-4;
         @apply border-b border-[var(--color-border)];
+    }
+    nav .content-width {
+        @apply flex flex-col items-center justify-center sm:flex-row sm:justify-start gap-4;
     }
     h1 {
         @apply mb-8 text-4xl;
     }
     h2 {
-        @apply mb-8 text-2xl text-center;
+        @apply mt-8 mb-8 text-2xl text-center;
     }
     h3 {
-        @apply mt-8 mb-2 text-2xl text-[var(--color-primary-link)] font-semibold;
+        @apply mb-2 text-2xl text-[var(--color-primary-link)] font-semibold;
     }
     p {
         @apply my-4;
     }
     a {
         color: var(--color-primary-link);
-        /* Use @apply to use Tailwind utilities */
-        /* @apply text-blue-600 underline transition-colors duration-200; */
-
-        /* Or use standard CSS with Tailwind theme variables */
         &:hover {
-            color: var(--color-blue-800);
+            color: var(--color-primary-link-hover);
         }
     }
     a>button {
         color: var(--color-button-text);
-        /* Use @apply to use Tailwind utilities */
-        /* @apply text-blue-600 underline transition-colors duration-200; */
-
-        /* Or use standard CSS with Tailwind theme variables */
-        /* &:hover {
-            color: var(--color-blue-800);
-        } */
     }
-    section {
-        @apply rounded p-8 my-8;
+    section.bg,
+    section#project-details,
+    .card {
+        @apply rounded-md p-8 my-8;
         @apply bg-[var(--bg-section)];
         @apply border border-[var(--color-border)];
+    }
+    section#project-list,
+    section#project-tasks {
+        @apply bg-none;
     }
     button {
         @apply rounded border border-gray-500 bg-gray-200 py-2 px-4 disabled:text-gray-300 disabled:border-gray-300 cursor-pointer;
         @apply bg-[var(--color-button-bg)] text-[var(--color-button-text)];
+        &:hover {
+            @apply bg-[var(--color-button-bg-hover)];
+        }
     }
     .form-row {
         @apply grid;
@@ -127,7 +128,7 @@
         @apply mt-8;
     }
     .card {
-        @apply mt-12 border-t border-gray-200
+        /* @apply mt-12 border-t border-gray-200 */
     }
     .details p {
         @apply my-1 text-sm;
@@ -145,4 +146,7 @@
     .project-name {
         @apply block sm:inline text-[var(--color-project-name)];
     }
+}
+
+@layer components {
 }
