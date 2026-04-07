@@ -22,14 +22,13 @@ function Login() {
 
         const getUser = async () => {
             try {
-
-                const { data } = jwtDecode(oAuthToken);
             
                 // take the token and store it locally
                 localStorage.setItem("token", oAuthToken)
 
                 // verify user on backend
-                // const { data } = await userClient.get('/')
+                // const { data } = jwtDecode(oAuthToken);
+                const { data } = await userClient.get('/')
 
                 // save some user data in our state
                 setUser(data)

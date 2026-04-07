@@ -3,8 +3,9 @@ import express, { json } from 'express'
 import './config/connection.js'
 import cors from 'cors'
 import userRoutes from './routes/userRoutes.js'
-import projectRoutes from './routes/projectRoutes.js'
-import taskRoutes from './routes/taskRoutes.js'
+import cohortRoutes from './routes/cohortRoutes.js'
+import organizationRoutes from './routes/organizationRoutes.js'
+import githubRoutes from './routes/githubRoutes.js'
 
 const app = express()
 const port = process.env.PORT || 3000;
@@ -13,9 +14,9 @@ app.use(cors({ origin: [process.env.CLIENT_ORIGIN, 'http://localhost:5173'] }))
 app.use(json())
 
 // mount routes
-app.use('/api/tasks', taskRoutes)
-app.use('/api/projects/:projectId/tasks', taskRoutes)
-app.use('/api/projects', projectRoutes)
+app.use('/api/organizations', organizationRoutes)
+app.use('/api/cohorts', cohortRoutes)
+app.use('/api/users/github', githubRoutes)
 app.use('/api/users', userRoutes)
  
 // frontend (oAuth login page)

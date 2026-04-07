@@ -1,30 +1,33 @@
 import { useState } from "react"
 
-export const useForm = (formType = 'project', initialValue = 'default') => {
+export const useForm = (formType = 'organization', initialValue = 'default') => {
 
     let initialFormValue = {}
     let initialCollaboratorsValue = []
 
-    if(formType === 'project') {
+    if(formType === 'organization') {
         initialFormValue = {
             name:        initialValue==='default' ? '' : initialValue['name'],
-            description: initialValue==='default' ? '' : initialValue['description'],
+            // description: initialValue==='default' ? '' : initialValue['description'],
         }
-        initialCollaboratorsValue = initialValue==='default' ?
-            []
-            :
-            initialValue['collaborators'] ? 
-                initialValue['collaborators'].map(
-                    callaborator => callaborator._id
-                )
-                :
-                []
+        // initialCollaboratorsValue = initialValue==='default' ?
+        //     []
+        //     :
+        //     initialValue['collaborators'] ? 
+        //         initialValue['collaborators'].map(
+        //             callaborator => callaborator._id
+        //         )
+        //         :
+        //         []
     }
-    else if(formType === 'task') {
+    else if(formType === 'cohort') {
+        console.log('initialvalue',initialValue);
+        
         initialFormValue = {
-            title:       initialValue==='default' ? '' : initialValue['title'],
-            description: initialValue==='default' ? '' : initialValue['description'],
-            status:      initialValue==='default' ? 'To Do' : initialValue['status']
+            name:       initialValue==='default' ? '' : initialValue['name'],
+            organization: initialValue==='default' ? '' : initialValue['organization'],
+            passcode: initialValue==='default' ? [] : initialValue['passcode'],
+            // status:      initialValue==='default' ? 'To Do' : initialValue['status']
         }
     }
 
@@ -36,18 +39,18 @@ export const useForm = (formType = 'project', initialValue = 'default') => {
     // clear or reset controlled form fields, by updating state variables
     const resetForm = (newData = false) => {
         if(newData) {
-            if(formType === 'project') {
-                setCollaborators(newData['collaborators'].map(
-                    callaborator => callaborator._id
-                ))
-            }
+            // if(formType === 'project') {
+            //     setCollaborators(newData['collaborators'].map(
+            //         callaborator => callaborator._id
+            //     ))
+            // }
             setForm(newData)
             setModal(false)
         }
         else {
-            if(formType === 'project') {
-                setCollaborators(initialCollaboratorsValue)
-            }
+            // if(formType === 'project') {
+            //     setCollaborators(initialCollaboratorsValue)
+            // }
             setForm(initialFormValue)
             setModal(false)
         }

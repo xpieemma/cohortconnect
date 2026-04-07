@@ -20,11 +20,34 @@ const userSchema = new Schema({
             return !this.githubId
         }
     },
+    permissions: {
+        type: String,
+        required: true,
+        enum: ['admin', 'user'],
+        default: 'user'
+    },
     githubId: {
         type: String,
         unique: true,
         sparse: true
-    }
+    },
+    githubUsername: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
+    githubAccessToken: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
+    cohorts: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Cohort',
+            required: true
+        }
+    ]
 })
 
 const User = mongoose.model('User', userSchema)

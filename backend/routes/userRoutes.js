@@ -1,5 +1,7 @@
 import express from 'express'
 import User from '../models/User.js'
+import Cohort from '../models/Cohort.js'
+import { toggleElement } from '../controllers/utils.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import passport from '../config/passport.js'
@@ -18,15 +20,19 @@ router.post('/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(req.body.password, saltRounds)
         
         // create a new user
-        const user = await User.create({
+        let user = await User.create({
             ...req.body,
             password: hashedPassword
         })
+
+        await user.populate(['cohorts'],'-password')
 
         // create a jwt token
         const payload = {
             username: user.username,
             email: user.email,
+            permissions: user.permissions,
+            cohorts: user.cohorts,
             _id: user._id
         }
         const token = jwt.sign({ data: payload }, secret, { expiresIn: expiration})
@@ -45,6 +51,7 @@ router.post('/login', async (req, res) => {
 
         // lookup the user by email
         const user = await User.findOne({ email: req.body.email })
+            .populate(['cohorts'],'-password')
 
         // check if user exists (if false respond with an error)
         if(!user) return res.status(404).json({ message: 'Invalid email or password' })
@@ -60,6 +67,8 @@ router.post('/login', async (req, res) => {
         const payload = {
             username: user.username,
             email: user.email,
+            permissions: user.permissions,
+            cohorts: user.cohorts,
             _id: user._id
         }
         const token = jwt.sign({ data: payload }, secret, { expiresIn: expiration})
@@ -76,7 +85,7 @@ router.post('/login', async (req, res) => {
 // When a user visits this URL, they will be redirected to GitHub to log in.
 router.get(
   '/auth/github',
-  passport.authenticate('github', { scope: ['user:email'] }) // Request email scope
+  passport.authenticate('github', { scope: ['user:email', 'user:follow'] }) // Request email scope
 );
  
 // The callback route that GitHub will redirect to after the user approves.
@@ -90,12 +99,10 @@ router.get(
     // At this point, `req.user` is the user profile returned from the verify callback.
     // We can now issue our own JWT to the user.
     // const token = signToken(req.user);
+
     // create a jwt token
-    const payload = {
-        username: req.user.username,
-        email: req.user.email,
-        _id: req.user._id
-    }
+    // console.log(req.user)
+    const payload = req.user
     const token = jwt.sign({ data: payload }, secret, { expiresIn: expiration})
 
     // Redirect the user to the frontend with the token, or send it in the response
@@ -111,7 +118,27 @@ router.get('/', (req, res) => {
     res.status(200).json(req.user)
 })
 
-// POST '/api/users/list' - return a list of all users for use with collaborators
+router.delete('/:id', async (req, res) => {
+    try {
+        const { id } = req.params
+        if(req.user._id !== id) return res.status(403).json({ message: 'You are not authorized to delete that account' })
+        // lookup all users
+        await User.findByIdAndDelete(id)
+
+        await Cohort.updateMany(
+            { },
+            { $pull: { users: id } }
+        );
+
+        // respond with the token and user data in an object
+        res.status(200).json({message: 'User deleted!'})
+    }
+    catch(err) {
+        res.status(400).json({ message: err.emssage })
+    }
+})
+
+// POST '/api/users/list' - return a list of all users to an authenticated user
 router.get('/list', async (req, res) => {
     try {
         // lookup all users
@@ -119,6 +146,44 @@ router.get('/list', async (req, res) => {
 
         // respond with the token and user data in an object
         res.status(200).json(users)
+    }
+    catch(err) {
+        res.status(400).json({ message: err.emssage })
+    }
+})
+
+router.put('/:userId/:cohortId', async (req, res) => {
+    try {
+        // see if the user exists
+        const user = await User.findOne({ _id: req.params.userId })
+        if(!user) return res.status(404).json({ message: 'No user found by that id!' })
+
+        // see if the cohort exits
+        const cohort = await Cohort.findById(req.params.cohortId)
+            .populate(['organization','users'], "-password")
+        if (!cohort) {
+        return res
+            .status(404).json({ message: "No cohort found with this id!" })
+        }
+
+        const updatedUser = await toggleElement(
+            User,
+            req.params.userId,
+            'cohorts',
+            req.params.cohortId
+        )
+
+        const updatedCohort = await toggleElement(
+            Cohort,
+            req.params.cohortId,
+            'users',
+            req.params.userId
+        )
+
+        if(updatedUser !== updatedCohort) throw new Error ('Data mismatch while adding/removing cohort.')
+
+        // respond with the token and user data in an object
+        res.status(200).json({message: 'Updated'})
     }
     catch(err) {
         res.status(400).json({ message: err.emssage })

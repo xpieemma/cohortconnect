@@ -1,12 +1,11 @@
 import { Link } from "react-router-dom"
-import { projectClient } from "../clients/api"
+import { organizationClient } from "../clients/api"
 import { useEffect } from "react"
 import { useState } from "react"
 import { useLoading } from "../context/LoadingContext"
-import ProjectForm from "./OrganizationForm"
-import ProgressBar from "./ProgressBar/ProgressBar"
+import OrganizationForm from "./OrganizationForm"
 
-function Project({ project, setProjects, isOwner = false }) {
+function Organization({ organization, setOrganizations, isAdmin = false }) {
     const [tasks, setTasks] = useState([])
     const { startLoading, stopLoading } = useLoading()
 
@@ -14,7 +13,7 @@ function Project({ project, setProjects, isOwner = false }) {
         const getTaskData = async () => {
             startLoading()
             try {
-                const { data } = await projectClient.get(`/${project._id}/tasks`)
+                const { data } = await organizationClient.get(`/`)
                 setTasks(data)
             }
             catch(err) {
@@ -31,10 +30,10 @@ function Project({ project, setProjects, isOwner = false }) {
     const handleDelete = async () => {
         try {
             startLoading()
-            // remove project from database
-            await projectClient.delete(`/${project._id}`)
-            // remove project from state
-            setProjects(projects => projects.filter(p => p._id !== project._id))
+            // remove organization from database
+            await organizationClient.delete(`/${organization._id}`)
+            // remove organization from state
+            setOrganizations(prev => prev.filter(org => org._id !== organization._id))
         }
         catch(err) {
             console.dir(err)
@@ -45,39 +44,35 @@ function Project({ project, setProjects, isOwner = false }) {
         }
     }
 
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.length>0 ? tasks.filter(task => task.status === 'Done').length : tasks.length
-
     return (
         <>
             <li className="card">
-                <h3><Link to={`/project/${project._id}`}>{project.name}</Link></h3>
-                <p><span class="label">Description:</span> {project.description}</p>
+                <h3><Link to={`/organization/${organization._id}`}>{organization.name}</Link></h3>
+                {/* <p><span className="label">Description:</span> {organization.description}</p> */}
                 <div className="details">
-                    <p><span class="label">Owner:</span> {project.owner.username}</p>
+                    {/* <p><span class="label">Owner:</span> {organization.owner.username}</p>
                     {
                         (tasks.length>0) &&
                         <p><span class="label">Tasks:</span> {tasks.length}</p>
                     }
                     {
-                        (project.collaborators.length>0) &&
-                        <p><span class="label">Collaborators:</span> {project.collaborators.length}</p>
-                    }
+                        (organization.collaborators.length>0) &&
+                        <p><span class="label">Collaborators:</span> {organization.collaborators.length}</p>
+                    } */}
                 </div>
                 <div className="buttons">
-                    <Link to={`/project/${project._id}`}><button>View Details</button></Link>
+                    <Link to={`/organization/${organization._id}`}><button>View Details</button></Link>
                     {
-                        isOwner &&
+                        isAdmin &&
                         <>
-                            <ProjectForm setProjects={setProjects} project={project} btnText={'Edit'} headingText={'Update Project'} />
+                            <OrganizationForm setOrganizations={setOrganizations} organization={organization} btnText={'Edit'} headingText={'Update Organization'} />
                             <button onClick={handleDelete}>Delete</button>
                         </>
                     }
                 </div>
-                <ProgressBar total={totalTasks} completed={completedTasks} />
             </li>
         </>
     )
 }
 
-export default Project
+export default Organization

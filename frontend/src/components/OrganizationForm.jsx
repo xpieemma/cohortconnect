@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react"
-import { projectClient, userClient } from "../clients/api"
+import { organizationClient, userClient } from "../clients/api"
 import { useUser } from "../context/UserContext";
 import { useLoading } from "../context/LoadingContext"
 import { useForm } from "../hooks/useForm";
 import './Modal/Modal.css'
 
-function ProjectForm({ project, setProjects, btnText = '+', headingText = 'Project' }) {
+function OrganizationForm({ organization, setOrganizations, btnText = '+', headingText = 'Project' }) {
     const { user } = useUser()
     const { startLoading, stopLoading } = useLoading()
     const [ users, setUsers ] = useState([])
@@ -15,11 +15,9 @@ function ProjectForm({ project, setProjects, btnText = '+', headingText = 'Proje
             form,
             setForm,
             collaborators,
-            setCollaborators,
-            handleCheckboxChange,
             resetForm,
             handleChange
-    } = useForm('project',project)
+    } = useForm('organization',organization)
     
     useEffect(() => {
         if(user && user._id !== undefined){
@@ -53,26 +51,25 @@ function ProjectForm({ project, setProjects, btnText = '+', headingText = 'Proje
     }, [modal])
 
     useEffect(() => {
-        if(project) {
-            setForm(project)
-            setCollaborators(project.collaborators.map(callaborator => callaborator._id))
+        if(organization) {
+            setForm(organization)
         }
-    }, [project])
+    }, [organization])
 
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
             startLoading()
 
-            if(project) {
-            // if updating existing project
+            if(organization) {
+            // if updating existing organization
 
                 // send the form data to our backend
-                const { data } = await projectClient.put(`/${project._id}`, {...form, collaborators: collaborators})
+                const { data } = await organizationClient.put(`/${organization._id}`, {...form, collaborators: collaborators})
                 
-                // update the projects state
-                setProjects(prev => {
-                    // check if the state is an array of projects of a single project
+                // update the organizations state
+                setOrganizations(prev => {
+                    // check if the state is an array of organizations of a single organization
                     return Array.isArray(prev) ?
                     prev.map(proj => proj._id === data._id ? data : proj )
                     :
@@ -83,13 +80,13 @@ function ProjectForm({ project, setProjects, btnText = '+', headingText = 'Proje
                 resetForm(data)
             }
             else {
-            // else, if adding new project
+            // else, if adding new organization
 
                 // send the form data to our backend
-                const { data } = await projectClient.post('/', {...form, collaborators: collaborators})
+                const { data } = await organizationClient.post('/', {...form, collaborators: collaborators})
             
-                // update the projects state
-                setProjects(prev => [...prev, data])
+                // update the organizations state
+                setOrganizations(prev => [...prev, data])
                 
                 // reset the form fields
                 resetForm()
@@ -107,8 +104,8 @@ function ProjectForm({ project, setProjects, btnText = '+', headingText = 'Proje
         }
     }
 
-    // const btnText = project ? 'Update' : 'Add Project'
-    // const headingText = project ? 'Update Project' : 'Add New Project'
+    // const btnText = organization ? 'Update' : 'Add Project'
+    // const headingText = organization ? 'Update Project' : 'Add New Project'
 
     return (
         <>
@@ -137,7 +134,7 @@ function ProjectForm({ project, setProjects, btnText = '+', headingText = 'Proje
                                 />
                             </div>
 
-                            <div className="form-row">
+                            {/* <div className="form-row">
                                 <label htmlFor="description">Description:</label>
                                 <textarea
                                     value={form.description}
@@ -146,27 +143,7 @@ function ProjectForm({ project, setProjects, btnText = '+', headingText = 'Proje
                                     name="description"
                                     required
                                 />
-                            </div>
-
-                            <div className="form-row">
-                                <fieldset>
-                                    <legend>Collaborators:</legend>
-                                    
-                                    {users.map(user => (
-                                    <div key={user._id}>
-                                        <label htmlFor={`collaborators_${user._id}`}>
-                                        <input
-                                            type="checkbox"
-                                            id={`collaborators_${user._id}`}
-                                            value={user._id}
-                                            checked={collaborators.includes(user._id)}
-                                            onChange={(e) => handleCheckboxChange(e)}
-                                        />
-                                        {user.username}</label>
-                                    </div>
-                                    ))}
-                                </fieldset>
-                            </div>
+                            </div> */}
 
                             <div className="buttons">
                                 <button type="submit">Submit</button>
@@ -181,4 +158,4 @@ function ProjectForm({ project, setProjects, btnText = '+', headingText = 'Proje
     )
 }
 
-export default ProjectForm
+export default OrganizationForm

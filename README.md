@@ -1,11 +1,11 @@
 # 📋 Pro-Tasker
 
-A collaborative project management tool for small teams.
+A place for cohorts to stay connected for future collaboration.
 
 ## 🌐 Deployment
 
-* **Frontend:** 🔗 https://pro-tasker-mw.netlify.app
-* **Backend:** 🔗 https://pro-tasker-35rc.onrender.com
+* **Frontend:** 🔗 coming_soon
+* **Backend:** 🔗 coming_soon
 
 ## 💻 Technologies Used
 
@@ -18,12 +18,12 @@ A collaborative project management tool for small teams.
 
 ## ✨ Features
 
-* **Create Tasks and Projects:** User can create new tasks and projects.
-* **View Tasks and Projects:** Displays a list of all user-owned projects or project-related tasks.
-* **Update Status:** Change the current phase of any task (e.g., from pending to completed).
-* **Edit Tasks and Projects:** Edit any task or project property.
-* **Delete Tasks and Projects:** Permanently remove projects from the dashboard and/or tasks from the Project Details page.
+* Register and login with GitHub.
+* Join a cohort.
+* Follow your fellow cohort member on GitHub.
+* Add any members you want to your favorites list.
 
+<!--
 ## 🔌 API Endpoints
 
 **User Endpoints**
@@ -34,6 +34,16 @@ A collaborative project management tool for small teams.
 | POST | /api/users/login | User login |
 | GET | /api/users/| Verify a user |
 | GET | /api/users/list| Get a list of users. This can only be accessed by an authenticated user. |
+
+**Orgnaization Endpoints**
+
+| Method | Endpoint| Description |
+| :--- | :--- | :--- |
+| POST | /api/organizations | Create an organizations. This can only be accessed by an authenticated user. |
+| GET | /api/organizations | Get organizations. This can only be accessed by an authenticated user. |
+| GET | /api/organizations/:id | Get an organization. This can only be accessed by an authenticated user. |
+| PUT | /api/organizations | Update a organization. This can only be accessed by an authenticated user. |
+| DELETE | /api/organizations | Delete aD organization. This can only be accessed by an authenticated user. |
 
 **Project Endpoints**
 
@@ -55,8 +65,9 @@ A collaborative project management tool for small teams.
 | PUT | /api/projects/:projectId/api/tasks/:taskId | Update a task with it's ID |
 | DELETE | /api/tasks/:taskId | Delete a task with it's ID |
 | DELETE | /api/projects/:projectId/api/tasks/:taskId | Delete a task with it's ID |
+-->
 
-
+<!-- 
 ## ⚙️ Installation and Setup
 
 To run this project locally, execute the following commands in your terminal:
@@ -93,4 +104,4 @@ npm install
 
 # Start the local development server
 npm run dev
-```
+``` -->

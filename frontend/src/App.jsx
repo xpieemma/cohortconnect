@@ -4,10 +4,12 @@ import Login from './pages/Login'
 import Navbar from './components/Navbar'
 import Dashboard from './pages/Dashboard'
 import { useUser } from './context/UserContext'
-import ProjectDetail from './pages/ProjectDetail'
+// import ProjectDetail from './pages/ProjectDetail'
 import Loading from './components/Loading/Loading'
 import ThemeToggle from "./components/ThemeToggler"
 import Profile from './pages/Profile'
+import OrganizationDetail from './pages/OrganizationDetails'
+import CohortDetail from './pages/CohortDetails'
 
 function App() {
 
@@ -24,7 +26,8 @@ function App() {
             <Routes>
               <Route path='/dashboard' element={<Dashboard />} />
               <Route path='/profile' element={<Profile />} />
-              <Route path='/project/:projectId' element={<ProjectDetail />} />
+              <Route path='/organization/:organizationId' element={<OrganizationDetail />} />
+              <Route path='/cohort/:cohortId' element={<CohortDetail />} />
               <Route path="*" element={<Navigate to="/dashboard" />} />
             </Routes>
           </>

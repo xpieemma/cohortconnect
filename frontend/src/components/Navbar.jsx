@@ -10,7 +10,8 @@ function Navbar() {
         <>
             <nav>
                 <div className="content-width">
-                    <img src={logo} alt="Pro-Tasker" className="w-40 h-auto m-2 sm:mr-auto dark:brightness-0 dark:invert" />
+                    <div>CohortConnect</div>
+                    {/* <img src={logo} alt="Pro-Tasker" className="w-40 h-auto m-2 sm:mr-auto dark:brightness-0 dark:invert" /> */}
                     <ul className="flex justify-center items-end gap-8">
                         {user ?
                             <>
