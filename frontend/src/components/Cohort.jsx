@@ -8,23 +8,7 @@ function Cohort({ cohort, setCohorts, isAdmin = false, hasJoined = false }) {
     const { startLoading, stopLoading } = useLoading()
     const [passcode, setPasscode] = useState({question: '', answer: ''})
 
-    // useEffect(() => {
-    //     const getTaskData = async () => {
-    //         startLoading()
-    //         try {
-    //             const { data } = await organizationClient.get(`/${cohort._id}/cohort`)
-    //             setCohorts(data)
-    //         }
-    //         catch(err) {
-    //             console.dir(err)
-    //             alert(err.response.data.message)
-    //         }
-    //         finally {
-    //             stopLoading()
-    //         }
-    //     }
-    //     getTaskData()
-    // },[])
+
 
     const handleDelete = async () => {
         try {
@@ -43,14 +27,17 @@ function Cohort({ cohort, setCohorts, isAdmin = false, hasJoined = false }) {
         }
     }
 
-    const handleAddPasscode = async () => {
-        try {
-            startLoading()
-            // remove cohort from database
-            await cohortClient.put(`/${cohort._id}`, {passcode: [{...passcode}]})
-            // remove cohort from state
-            setCohorts(cohorts => cohorts.map(c => c._id !== cohort._id ? {...cohort, passcode: [{...passcode}]} : c))
-            setPasscode({question: '', answer: ''})
+  const handleAddPasscode = async (e) => {
+    e.preventDefault(); // Prevent page reload
+    try {
+        startLoading();
+        await cohortClient.put(`/${cohort._id}`, { passcode: [...cohort.passcode, passcode] });
+
+        // Fix inverted logic and append correctly
+        setCohorts(cohorts => cohorts.map(c => 
+            c._id === cohort._id ? { ...c, passcode: [...c.passcode, passcode] } : c
+        ));
+        setPasscode({ question: '', answer: '' });
         }
         catch(err) {
             console.dir(err)

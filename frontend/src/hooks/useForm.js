@@ -10,15 +10,7 @@ export const useForm = (formType = 'organization', initialValue = 'default') => 
             name:        initialValue==='default' ? '' : initialValue['name'],
             // description: initialValue==='default' ? '' : initialValue['description'],
         }
-        // initialCollaboratorsValue = initialValue==='default' ?
-        //     []
-        //     :
-        //     initialValue['collaborators'] ? 
-        //         initialValue['collaborators'].map(
-        //             callaborator => callaborator._id
-        //         )
-        //         :
-        //         []
+       
     }
     else if(formType === 'cohort') {
         console.log('initialvalue',initialValue);

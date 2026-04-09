@@ -1,72 +1,101 @@
-import axios from 'axios'
+// import axios from 'axios'
 
-const BASE_URL = import.meta.env.VITE_BASE_URL
+// const BASE_URL = import.meta.env.VITE_BASE_URL
 
-export const token = () => localStorage.getItem('token')
+// export const token = () => localStorage.getItem('token')
 
-export const apiClient = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL,
-    withCredentials: true
+// export const apiClient = axios.create({
+//     baseURL: import.meta.env.VITE_API_BASE_URL,
+//     withCredentials: true
+// });
+
+// apiClient.interceptors.response.use(
+//   (response) => response.data, // Strip away the Axios wrapper immediately
+//   (error) => {
+//     const customError = new Error(error.response?.data?.message || 'An unexpected error occurred');
+//     customError.status = error.response?.status;
+    
+//     if (customError.status === 401) {
+//        window.location.href = '/login'; // Global unauthorized handler
+//     }
+    
+//     return Promise.reject(customError);
+//   }
+// );
+
+// export const userClient = axios.create({
+//     baseURL: BASE_URL+'/api/users'
+//     /* ,
+//     headers: {
+//         Authorization: `Bearer ${token()}`
+//     } */
+// })
+
+// export const githubClient = axios.create({
+//     baseURL: BASE_URL+'/api/users/github'
+// })
+
+// export const organizationClient = axios.create({
+//     baseURL: BASE_URL+'/api/organizations'
+// })
+
+// export const cohortClient = axios.create({
+//     baseURL: BASE_URL+'/api/cohorts'
+// })
+
+// userClient.interceptors.request.use((req) => {
+//     if (token()) {
+//         req.headers.Authorization = `Bearer ${token()}`
+//     }
+//     return req
+// })
+
+// githubClient.interceptors.request.use((req) => {
+//     if (token()) {
+//         req.headers.Authorization = `Bearer ${token()}`
+//     }
+//     return req
+// })
+
+// organizationClient.interceptors.request.use((req) => {
+//     if (token()) {
+//         req.headers.Authorization = `Bearer ${token()}`
+//     }
+//     return req
+// })
+
+// cohortClient.interceptors.request.use((req) => {
+//     if (token()) {
+//         req.headers.Authorization = `Bearer ${token()}`
+//     }
+//     return req
+// })
+
+
+
+import axios from 'axios';
+
+export const api = axios.create({
+    baseURL: import.meta.env.VITE_API_BASE_URL || `${import.meta.env.VITE_BASE_URL}/api`,
 });
 
-apiClient.interceptors.response.use(
-  (response) => response.data, // Strip away the Axios wrapper immediately
-  (error) => {
-    const customError = new Error(error.response?.data?.message || 'An unexpected error occurred');
-    customError.status = error.response?.status;
-    
-    if (customError.status === 401) {
-       window.location.href = '/login'; // Global unauthorized handler
+// Attach token dynamically to every request
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
     }
-    
-    return Promise.reject(customError);
-  }
+    return config;
+});
+
+// Centralized Error Handling
+api.interceptors.response.use(
+    (response) => response.data, // Strip the axios wrapper
+    (error) => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem('token');
+            window.location.href = '/login'; 
+        }
+        return Promise.reject(error.response?.data || error);
+    }
 );
-
-export const userClient = axios.create({
-    baseURL: BASE_URL+'/api/users'
-    /* ,
-    headers: {
-        Authorization: `Bearer ${token()}`
-    } */
-})
-
-export const githubClient = axios.create({
-    baseURL: BASE_URL+'/api/users/github'
-})
-
-export const organizationClient = axios.create({
-    baseURL: BASE_URL+'/api/organizations'
-})
-
-export const cohortClient = axios.create({
-    baseURL: BASE_URL+'/api/cohorts'
-})
-
-userClient.interceptors.request.use((req) => {
-    if (token()) {
-        req.headers.Authorization = `Bearer ${token()}`
-    }
-    return req
-})
-
-githubClient.interceptors.request.use((req) => {
-    if (token()) {
-        req.headers.Authorization = `Bearer ${token()}`
-    }
-    return req
-})
-
-organizationClient.interceptors.request.use((req) => {
-    if (token()) {
-        req.headers.Authorization = `Bearer ${token()}`
-    }
-    return req
-})
-
-cohortClient.interceptors.request.use((req) => {
-    if (token()) {
-        req.headers.Authorization = `Bearer ${token()}`
-    }
-    return req
-})

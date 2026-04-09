@@ -109,7 +109,7 @@ function Dashboard() {
                                 cohort={cohort}
                                 setCohorts={setCohorts}
                                 isAdmin={user.permissions === 'admin'}
-                                hasJoined={userCohorts.some(cohort => cohort._id === cohort._id)}
+                                hasJoined={userCohorts.some(uc => uc._id === cohort._id)}
                             />
                         )}
                     </ul>

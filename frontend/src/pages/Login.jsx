@@ -43,11 +43,9 @@ function Login() {
                 alert(err.response.data.message)
             }
         }
-        if(oAuthToken) {
-            getUser()
-        }
+        if(oAuthToken) getUser()
         
-    }, [])
+    }, [oAuthToken])
 
     const [form, setForm] = useState({
         email: '',

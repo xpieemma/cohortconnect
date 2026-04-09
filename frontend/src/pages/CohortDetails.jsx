@@ -30,16 +30,7 @@ function CohortDetail() {
                 alert(err.response.data.message)
             }
         }
-        // const getCohortData = async () => {
-        //     try {
-        //         const { data } = await cohortClient.get(`/${cohortId}/cohorts`)
-        //         setCohorts(data)
-        //     }
-        //     catch(err) {
-        //         console.dir(err)
-        //         alert(err.response.data.message)
-        //     }
-        // }
+   
         const getData = async () => {
             startLoading()
             try {
@@ -79,7 +70,7 @@ function CohortDetail() {
                 const response = await userClient.put(`/${user._id}/${cohortId}`, { data: userAnswers });
                 console.log('Success!', response.data);
                 alert('Great! You have been added. Login again');
-                logout()
+                //logout()
             
                 // use the token to cerify the user (is token valid? is it expired?)
                 // const { data } = await userClient.get('/')
