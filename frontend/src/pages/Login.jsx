@@ -1,92 +1,76 @@
-import { useEffect, useState } from "react"
-import { userClient } from "../clients/api"
-import { useUser } from "../context/UserContext"
-import { useLoading } from "../context/LoadingContext"
-import { Link, useNavigate, useSearchParams } from "react-router-dom"
-import { jwtDecode } from 'jwt-decode'
+import { useEffect, useState } from "react";
+import { api } from "../clients/api"; // <-- 1. Import your new central API client
+import { useUser } from "../context/UserContext";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import toast from "react-hot-toast"; // <-- 2. Import the toast library
 
 function Login() {
-
     const [searchParams] = useSearchParams();
-
-    // Get a specific parameter's value
     const oAuthToken = searchParams.get("token"); 
 
-    const { setUser } = useUser()
+    const { setUser } = useUser();
+    const navigate = useNavigate();
 
-    const { startLoading, stopLoading } = useLoading()
-
-    const navigate = useNavigate()
-
+    // --- GitHub OAuth Flow ---
     useEffect(() => {
-
         const getUser = async () => {
+            const toastId = toast.loading("Authenticating securely...");
             try {
-            
-                // take the token and store it locally
-                localStorage.setItem("token", oAuthToken)
+                // Store token so the new api.js interceptor automatically uses it
+                localStorage.setItem("token", oAuthToken);
 
-                // verify user on backend
-                // const { data } = jwtDecode(oAuthToken);
-                const { data } = await userClient.get('/')
+                // Fetch user via central API. 
+                // (Note: old userClient was mapped to '/api/users', so we use '/users' here)
+                const data = await api.get('/users'); 
 
-                // save some user data in our state
-                setUser(data)
-                console.log(data);
-                
-                // navigate to the feed
-                navigate("/dashboard")
-
+                setUser(data);
+                toast.success("Welcome back!", { id: toastId }); // Replaces loading toast with success
+                navigate("/dashboard");
+            } catch(err) {
+                console.error(err);
+                localStorage.removeItem("token");
+                toast.error("Failed to authenticate with GitHub", { id: toastId });
             }
-            catch(err) {
-                console.dir(err)
-                alert(err.response.data.message)
-            }
-        }
-        if(oAuthToken) getUser()
+        };
+
+        if (oAuthToken) getUser();
         
-    }, [oAuthToken])
+    }, [oAuthToken, navigate, setUser]); // Safely include dependencies
 
+    // --- Standard Email/Password Flow ---
     const [form, setForm] = useState({
         email: '',
         password: ''
-    })
+    });
 
     const handleChange = (e) => {
-        const {name, value} = e.target
+        const { name, value } = e.target;
         setForm({
             ...form,
             [name]: value
-        })
-    }
+        });
+    };
 
     const handleSubmit = async (e) => {
-        e.preventDefault()
+        e.preventDefault();
+        const toastId = toast.loading("Logging in..."); // Start loading toast
 
         try {
-            startLoading()
-
-            // send the form data to our backend
-            const { data } = await userClient.post('/login', form)
+            // Use the central API client
+            const data = await api.post('/users/login', form);
         
-            // take the token and store it locally
-            localStorage.setItem("token", data.token)
-
-            // save some user data in our state
-            setUser(data.user)
+            localStorage.setItem("token", data.token);
+            setUser(data.user);
             
-            // navigate to the feed
-            navigate("/dashboard")
-
+            toast.success("Login successful!", { id: toastId });
+            navigate("/dashboard");
+        } catch(err) {
+            console.error(err);
+            // The api.js interceptor already fires an error toast, 
+            // so we just need to dismiss the "Logging in..." toast here.
+            toast.dismiss(toastId); 
         }
-        catch(err) {
-            console.dir(err)
-            alert(err.response.data.message)
-        }
-        finally {
-            stopLoading()
-        }
-    }
+    };
 
     return (
         <section className="bg">
@@ -120,19 +104,23 @@ function Login() {
                 </div>
 
                 <div className="buttons">
-                    <button>Login</button>
+                    <button type="submit">Login</button>
                 </div>
 
-                <p className="alternative">Don't have an account? <Link to="/register">Create an account!</Link></p>
+                <p className="alternative">
+                    Don't have an account? <Link to="/register">Create an account!</Link>
+                </p>
 
             </form>
             
-            <div className="buttons">
-                <a href={import.meta.env.VITE_BASE_URL+"/api/users/auth/github"}><button>Login with GitHub</button></a>
+            <div className="buttons mt-4 border-t border-gray-300 pt-4 dark:border-gray-700">
+                <a href={`${import.meta.env.VITE_BASE_URL}/api/users/auth/github`}>
+                    <button type="button">Login with GitHub</button>
+                </a>
             </div>
             
         </section>
-    )
+    );
 }
 
-export default Login
+export default Login;

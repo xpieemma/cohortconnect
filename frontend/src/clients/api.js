@@ -74,12 +74,15 @@
 
 
 import axios from 'axios';
+import toast from 'react-hot-toast'; // We will install this in Step 3
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || `${import.meta.env.VITE_BASE_URL}/api`;
 
 export const api = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || `${import.meta.env.VITE_BASE_URL}/api`,
+    baseURL: BASE_URL,
 });
 
-// Attach token dynamically to every request
+// 1. Automatically attach the token to every request
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -88,14 +91,22 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
-// Centralized Error Handling
+// 2. Centralized Error Handling
 api.interceptors.response.use(
-    (response) => response.data, // Strip the axios wrapper
+    (response) => response.data, // Strip the Axios 'data' wrapper immediately
     (error) => {
-        if (error.response?.status === 401) {
+        const status = error.response?.status;
+        const message = error.response?.data?.message || 'An unexpected error occurred';
+
+        // Global 401 handling
+        if (status === 401) {
             localStorage.removeItem('token');
             window.location.href = '/login'; 
         }
-        return Promise.reject(error.response?.data || error);
+
+        // Global error toast (replaces your alerts)
+        toast.error(message);
+        
+        return Promise.reject(error);
     }
 );

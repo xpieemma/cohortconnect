@@ -1,141 +1,123 @@
-import { useEffect } from "react"
-import { useParams } from "react-router-dom"
-import { cohortClient, userClient } from "../clients/api"
-import { useState } from "react"
-import Cohort from "../components/Cohort"
-import CohortForm from "../components/CohortForm"
-import { useUser } from "../context/UserContext"
-import { useLoading } from "../context/LoadingContext"
-import MemberCard from "../components/MemberCard"
-// import { isCohortAdmin } from "../utils/cohortAuth"
+import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "../clients/api";
+import { useUser } from "../context/UserContext";
+import MemberCard from "../components/MemberCard";
+import toast from "react-hot-toast";
 
 function CohortDetail() {
-    const { user, setUser, logout } = useUser()
-    const { cohortId } = useParams()
-    const [ cohort, setCohort ] = useState(null)
-    const [ qaList, setQaList ] = useState([])
-  const [userAnswers, setUserAnswers] = useState([]);
-    const { startLoading, stopLoading } = useLoading()
+    const { user, setUser } = useUser();
+    const { cohortId } = useParams();
+    const queryClient = useQueryClient();
 
-    useEffect(() => {
-        const getCohortData = async () => {
-            try {
-                const { data } = await cohortClient.get(`/${cohortId}`)
-                setCohort(data)
-                setQaList(data.passcode)
-                setUserAnswers(new Array(data.passcode.length).fill(""))
-            }
-            catch(err) {
-                console.dir(err)
-                alert(err.response.data.message)
-            }
-        }
-   
-        const getData = async () => {
-            startLoading()
-            try {
-                await getCohortData()
-                // await getCohortData()
-            }
-            catch(err) {
-                console.dir(err)
-                alert(err.response.data.message)
-            }
-            finally {
-                stopLoading()
-            }
-        }
-        getData()
-    }, [cohortId])
+    const [userAnswers, setUserAnswers] = useState([]);
 
-    const handleChange = (index, value) => {
-        const nextAnswers = [...userAnswers];
-        nextAnswers[index] = value;
-        setUserAnswers(nextAnswers);
+    // --- 1. Fetch Cohort Data automatically with React Query ---
+    const { data: cohort, isLoading } = useQuery({
+        queryKey: ['cohort', cohortId],
+        queryFn: () => api.get(`/cohorts/${cohortId}`),
+        enabled: !!cohortId
+    });
+
+
+const handleChange = (index, value) => {
+    const nextAnswers = [...userAnswers];
+    nextAnswers[index] = value;
+    setUserAnswers(nextAnswers);
+};
+
+const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // 2. Loop over the source of truth (cohort.passcode), NOT the user's answers.
+    // This prevents the "empty array = true" bug.
+    const allCorrect = cohort.passcode.every((pc, index) => {
+        const userInput = userAnswers[index] || ""; // Safely fallback to empty string
+        return userInput.trim().toLowerCase() === pc.answer.toLowerCase();
+    });
+
+    if (allCorrect) {
+        joinMutation.mutate(userAnswers);
+    } else {
+        toast.error('Some answers are incorrect. Please try again.');
     }
+};
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-
-        // Compare userAnswers back to qaList
-        const allCorrect = userAnswers.every((userInput, index) => {
-            const isCorrect = userInput.trim().toLowerCase() === qaList[index].answer.toLowerCase();
-            return isCorrect;
-        })
-
-        if (allCorrect) {
-            const joinCohort = async () => {
-                try {
-                // run Axios call
-                const response = await userClient.put(`/${user._id}/${cohortId}`, { data: userAnswers });
-                console.log('Success!', response.data);
-                alert('Great! You have been added. Login again');
-                //logout()
+    const joinMutation = useMutation({
+        mutationFn: (answers) => api.put(`/users/${user._id}/${cohortId}`, { data: answers }),
+        onSuccess: () => {
+            toast.success("Great! You have successfully joined the cohort.");
             
-                // use the token to cerify the user (is token valid? is it expired?)
-                // const { data } = await userClient.get('/')
-                    
-                // if verified that token is legit, take the user data and save it to state
-                // setUser(data)
+            // Update global user context so the rest of the app knows we joined
+            setUser((prev) => ({
+                ...prev,
+                cohorts: [...prev.cohorts, cohort]
+            }));
 
-                } catch (err) {
-                console.error('API Error:', err);
-                }
-            }
-            joinCohort()
-            setUser((prev) => {
-                const cohorts = [...prev.cohorts, cohort]
-                return {...prev, cohorts: cohorts}
-            })
-            setCohort((prev) => {
-                const users = [...prev.users, user]
-                return {...prev, users: users}
-            })
-        } else {
-            alert('Some answers are incorrect. Please try again.');
+            // Magic trick: Tell React Query to refetch this specific cohort.
+            // This automatically populates the new MemberCard list without us faking the state!
+            queryClient.invalidateQueries({ queryKey: ['cohort', cohortId] });
+        },
+        onError: (err) => {
+            toast.error(err.message || "Failed to join cohort.");
         }
+    });
 
-    }
+    
 
-console.log(user);
+    if (isLoading) return <p className="text-center mt-10">Loading cohort details...</p>;
+    if (!cohort) return <p className="text-center mt-10">Cohort not found.</p>;
+
+    // Clean boolean to check if the current user is already in this cohort
+    const hasJoined = user.cohorts.some(c => c?._id?.toString() === cohort?._id?.toString());
 
     return (
         <>
-            {cohort &&
-            <>
-                <h1>Cohort: <span className="cohort-name">{cohort.name}</span></h1>
+            <h1>Cohort: <span className="cohort-name">{cohort.name}</span></h1>
 
-                <section id="cohort-users">
-                    {user.cohorts.some(c => c?._id?.toString() === cohort?._id?.toString()) ?
+            <section id="cohort-users" className="card mt-8">
+                {hasJoined ? (
                     <>
-                    <h2>Members</h2>
-                    {cohort.users.length > 0 ?
-                        <ul>
-                            {cohort.users.map(user => <MemberCard key={user._id} member={user} />)}
-                        </ul>
-                        :
-                        <p>Currently no cohorts members.</p>
-                    }
-                    </>
-                    :
-                    <>
-                    <h2>Answer Passcode to Join</h2>
-                    <form className="card" onSubmit={handleSubmit}>
-                        {qaList.map((pc,index) => 
-                            <div key={index} className="form-row">
-                                <label htmlFor="answer">{pc.question}</label>
-                                <input type="text" id="answer" name="answer" value={userAnswers[index]} onChange={(e) => handleChange(index, e.target.value)} />
-                            </div>
+                        <h2>Members</h2>
+                        {cohort.users?.length > 0 ? (
+                            <ul>
+                                {cohort.users.map(member => (
+                                    <MemberCard key={member._id} member={member} />
+                                ))}
+                            </ul>
+                        ) : (
+                            <p>Currently no cohorts members.</p>
                         )}
-                        <button>Submit</button>
-                    </form>
                     </>
-                    }
-                </section>
-            </>
-            }
+                ) : (
+                    <>
+                        <h2>Answer Passcode to Join</h2>
+                        <form onSubmit={handleSubmit} className="mt-4">
+                            {cohort.passcode.map((pc, index) => (
+                                <div key={index} className="form-row">
+                                    <label htmlFor={`answer-${index}`}>{pc.question}</label>
+                                    <input 
+                                        type="text" 
+                                        id={`answer-${index}`} 
+                                        name="answer" 
+                                        value={userAnswers[index] || ""} 
+                                        onChange={(e) => handleChange(index, e.target.value)} 
+                                        disabled={joinMutation.isPending} // Disable inputs while submitting!
+                                    />
+                                </div>
+                            ))}
+                            <div className="buttons">
+                                <button type="submit" disabled={joinMutation.isPending}>
+                                    {joinMutation.isPending ? "Joining..." : "Submit"}
+                                </button>
+                            </div>
+                        </form>
+                    </>
+                )}
+            </section>
         </>
-    )
+    );
 }
 
-export default CohortDetail
+export default CohortDetail;

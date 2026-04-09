@@ -1,124 +1,91 @@
-import { useEffect, useState } from "react"
-import { useUser } from "../context/UserContext"
-import { useLoading } from "../context/LoadingContext"
-import { organizationClient } from "../clients/api"
-import { cohortClient } from "../clients/api"
-import { userClient } from "../clients/api"
-// import Project from "../components/Project"
-import OrganizationForm from "../components/OrganizationForm"
-import { isProjectOwner } from "../utils/organizationAuth"
-import Organization from "../components/Organization"
-import Cohort from "../components/Cohort"
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../clients/api';
+import { useUser } from '../context/UserContext';
+import OrganizationForm from "../components/OrganizationForm";
+import Organization from "../components/Organization";
+import Cohort from "../components/Cohort";
 
 function Dashboard() {
+    const { user } = useUser();
 
-    const { user } = useUser()
-    const [organizations, setOrganizations] = useState([])
-    const [cohorts, setCohorts] = useState([])
-    const [userCohorts, setUserCohorts] = useState([])
-    const { startLoading, stopLoading } = useLoading()
+    // React Query handles fetching, caching, and loading states automatically
+    const { data: organizations = [], isLoading: orgsLoading } = useQuery({
+        queryKey: ['organizations'],
+        queryFn: () => api.get('/organizations'),
+        enabled: user?.permissions === 'admin' // Only fetch if admin!
+    });
 
-    useEffect(() => {
-        async function getData() {
-            startLoading()
-            try {
-                // get organizations
-                const { data: organizationsData } = await organizationClient.get('/')
+    const { data: cohorts = [], isLoading: cohortsLoading } = useQuery({
+        queryKey: ['cohorts'],
+        queryFn: () => api.get('/cohorts')
+    });
 
-                // get cohorts
-                const { data: cohortsData } = await cohortClient.get('/')
+    const { data: userData, isLoading: userLoading } = useQuery({
+        queryKey: ['userCohorts', user?._id],
+        queryFn: () => api.get('/users') // Assuming this returns the populated user object
+    });
 
-                // get user's cohorts
-                const { data: userCohortsData } = await userClient.get('/')
+    const userCohorts = userData?.cohorts || [];
+    const isLoading = orgsLoading || cohortsLoading || userLoading;
 
-                // save organizations component's state
-                setOrganizations(organizationsData)    
-
-                // save cohorts component's state
-                setCohorts(cohortsData)    
-
-                // save user's cohorts component's state
-                setUserCohorts(userCohortsData.cohorts)    
-            }
-            catch(err) {
-                console.dir(err)
-            }
-            finally {
-                stopLoading()
-            }
-        }
-        getData()
-    }, [])
-
-    console.log(user)
+    if (isLoading) return <p className="text-center mt-10">Loading dashboard...</p>;
 
     return (
         <>
             <h1>Dashboard</h1>
             <p>Welcome {user.username}! Create projects, tasks, and collaborate with others.</p>
             
-            
-            {user.permissions === 'admin' &&
-            <section id="organization-list">
-                <h2>Organizations</h2>
-                <div className="buttons">
-                    <OrganizationForm setOrganizations={setOrganizations} btnText={'Add Organization'} headingText={'Add New Organization'} />
-                </div>
-                {organizations.length>0 ?
-                    <ul>
-                        {organizations.map(organization =>
-                            <Organization
-                                key={organization._id}
-                                organization={organization}
-                                setOrganizations={setOrganizations}
-                                isAdmin={user.permissions === 'admin'}
-                            />
-                        )}
-                    </ul>
-                    :
-                    <p>There are currently no organizations.</p>
-                }
-            </section>}
+            {user.permissions === 'admin' && (
+                <section id="organization-list">
+                    <h2>Organizations</h2>
+                    <div className="buttons">
+                        <OrganizationForm btnText={'Add Organization'} headingText={'Add New Organization'} />
+                    </div>
+                    {organizations.length > 0 ? (
+                        <ul>
+                            {organizations.map(org => (
+                                <Organization key={org._id} organization={org} isAdmin={true} />
+                            ))}
+                        </ul>
+                    ) : (
+                        <p>There are currently no organizations.</p>
+                    )}
+                </section>
+            )}
 
             <section id="cohort-list">
                 <h2>My Cohorts</h2>
-                {userCohorts.length>0 ?
+                {userCohorts.length > 0 ? (
                     <ul>
-                        {userCohorts.map(cohort =>
-                            <Cohort
-                                key={cohort._id}
-                                cohort={cohort}
-                                setCohorts={setCohorts}
-                                isAdmin={user.permissions === 'admin'}
-                                hasJoined={true}
-                            />
-                        )}
+                        {userCohorts.map(cohort => (
+                            <Cohort key={cohort._id} cohort={cohort} isAdmin={user.permissions === 'admin'} hasJoined={true} />
+                        ))}
                     </ul>
-                    :
+                ) : (
                     <p>You haven't joined any cohorts.</p>
-                }
+                )}
             </section>
 
             <section id="cohort-list">
                 <h2>All Cohorts</h2>
-                {cohorts.length>0 ?
+                {cohorts.length > 0 ? (
                     <ul>
-                        {cohorts.map(cohort =>
-                            <Cohort
-                                key={cohort._id}
-                                cohort={cohort}
-                                setCohorts={setCohorts}
-                                isAdmin={user.permissions === 'admin'}
-                                hasJoined={userCohorts.some(uc => uc._id === cohort._id)}
+                        {cohorts.map(cohort => (
+                            <Cohort 
+                                key={cohort._id} 
+                                cohort={cohort} 
+                                isAdmin={user.permissions === 'admin'} 
+                                // Fix applied here: checking against uc._id
+                                hasJoined={userCohorts.some(uc => uc._id === cohort._id)} 
                             />
-                        )}
+                        ))}
                     </ul>
-                    :
+                ) : (
                     <p>There are currently no cohorts.</p>
-                }
+                )}
             </section>
         </>
-    )
+    );
 }
 
-export default Dashboard
+export default Dashboard;

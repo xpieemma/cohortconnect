@@ -1,4 +1,4 @@
-import { userClient } from "../clients/api"
+import { api } from "../clients/api"
 import { useUser } from "../context/UserContext"
 
 function Profile() {
@@ -6,7 +6,7 @@ function Profile() {
 
     const handleDelete = async () => {
         try {
-            await userClient.delete(`/${user._id}`)
+            await api.delete(`/users/${user._id}`)
             logout()
         }
         catch(err) {

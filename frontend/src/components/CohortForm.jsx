@@ -1,148 +1,129 @@
-import { useEffect } from "react"
-import { organizationClient, cohortClient } from "../clients/api"
-import { useForm } from "../hooks/useForm"
-import { useLoading } from "../context/LoadingContext"
-import './Modal/Modal.css'
+import { useState} from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "../clients/api";
+import { Modal } from "./ui/Modal"; // Import the Headless UI Modal we created
+import toast from "react-hot-toast";
 
-function CohortForm({ organizationId, setCohorts, cohort, btnText = '+', headingText = 'Cohort'  }) {
-    const { startLoading, stopLoading } = useLoading()
-    const {
-        modal,
-        toggleModal,
-        form,
-        setForm,
-        resetForm,
-        handleChange
-    } = useForm('cohort',cohort ? cohort : {name: '', organization: organizationId, passcode: []} )
+// Look! We removed `setCohorts` from the props!
+function CohortForm({ organizationId, cohort, btnText = '+', headingText = 'Cohort' }) {
+    const queryClient = useQueryClient();
+    const [isOpen, setIsOpen] = useState(false);
     
-    useEffect(() => {
-        if(cohort) {
-            setForm(cohort)
+    // Standard React state is cleaner than a massive custom hook
+    // 1. Initialize with empty defaults
+    const [form, setForm] = useState({ 
+        name: '', 
+        organization: organizationId, 
+        passcode: [{ question: '', answer: '' }] 
+    });
+const handleOpenModal = () => {
+        if (cohort) {
+            // If we are editing, populate the form NOW
+            setForm({
+                ...cohort,
+                passcode: cohort.passcode?.length > 0 
+                    ? cohort.passcode 
+                    : [{ question: '', answer: '' }]
+            });
+        } else {
+            // If we are adding new, reset to blank NOW
+            setForm({ 
+                name: '', 
+                organization: organizationId, 
+                passcode: [{ question: '', answer: '' }] 
+            });
         }
-    }, [cohort])
+        setIsOpen(true); // Finally, open the modal
+    };
+   
+    const handleChange = (e) => {
+        setForm({ ...form, [e.target.name]: e.target.value });
+    };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-        startLoading()
-        try {
+    const handlePasscodeChange = (field, value) => {
+        const updatedPasscode = [{ ...form.passcode[0], [field]: value }];
+        setForm({ ...form, passcode: updatedPasscode });
+    };
 
-            if(cohort){
-                // send the form data to our backend
-                const { data } = await cohortClient.put(`/${cohort._id}`, form)
-                setCohorts(prev => prev.map(cohort => cohort._id === data._id ? data : cohort))
-                resetForm(data)
+    // --- React Query Mutation ---
+    const saveMutation = useMutation({
+        mutationFn: (formData) => {
+            if (cohort) {
+                return api.put(`/cohorts/${cohort._id}`, formData);
             }
-            else {
-                // send the form data to our backend
-                const { data } = await organizationClient.post(`/${organizationId}/cohorts`, form)
-                setCohorts(prev => [...prev, data])
-                resetForm()
-            }
-            
-        }
-        catch(err) {
-            console.dir(err)
-            alert(err.response.data.message)
-        }
-        finally {
-            stopLoading()
-        }
-    }
+            return api.post(`/organizations/${organizationId}/cohorts`, formData);
+        },
+        onSuccess: () => {
+            toast.success(`Cohort ${cohort ? 'updated' : 'created'} successfully!`);
+            queryClient.invalidateQueries({ queryKey: ['cohorts'] }); // Magically updates the UI!
+            setIsOpen(false); // Close modal
+            if (!cohort) setForm({ name: '', organization: organizationId, passcode: [{ question: '', answer: '' }] });
+        },
+        onError: (err) => toast.error(err.message || "Failed to save cohort")
+    });
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        saveMutation.mutate(form);
+    };
 
     return (
         <>
-            <button onClick={toggleModal}>{btnText}</button>
 
-            {modal &&
-                <div className="modal">
-                    <div className="overlay" onClick={toggleModal}></div>
-                    <div className="modal-content">
+        <button onClick={handleOpenModal}>{btnText}</button>
+            <button onClick={() => setIsOpen(true)}>{btnText}</button>
 
-                        <h3>{headingText}</h3>
-
-                        <form onSubmit={handleSubmit}>
-
-                            <div className="form-row">
-                                <label htmlFor="name">Name:</label>
-                                <input
-                                    value={form.name}
-                                    onChange={handleChange}
-                                    id="name"
-                                    name="name"
-                                    type="text"
-                                    required
-                                />
-                            </div>
-
-                            <div className="form-row">
-                                {/* <label htmlFor="organization">Organization:</label> */}
-                                <input
-                                    value={form.organization}
-                                    onChange={handleChange}
-                                    id="organization"
-                                    name="organization"
-                                    type="hidden"
-                                    required
-                                />
-                            </div>
-                            {form.passcode.length > 0 &&
-                            <>
-                                <div className="form-row">
-                                    <label htmlFor="passcode.0.question">Passcode Question:</label>
-                                    <input
-                                        value={form.passcode[0].question}
-                                        onChange={handleChange}
-                                        id="passcode.0.question"
-                                        name="passcode.0.question"
-                                        type="text"
-                                        required
-                                    />
-                                </div>
-                                <div className="form-row">
-                                    <label htmlFor="passcode.0.answer">Passcode Answer:</label>
-                                    <input
-                                        value={form.passcode[0].answer}
-                                        onChange={handleChange}
-                                        id="passcode.0.answer"
-                                        name="passcode.0.answer"
-                                        type="text"
-                                        required
-                                    />
-                                </div>
-                            </>
-                            }
-                            {/* <p onClick={()=>setForm(
-                                {...form,[...form.passcode, {question: '', answer: ''}]}
-                            )}>Add Passcode</p> */}
-
-                            
-                            {/* <div className="form-row">
-                                <label htmlFor="status">Status:</label>
-                                <select
-                                    value={form.status}
-                                    onChange={handleChange}
-                                    id="status"
-                                    name="status"
-                                    type="text"
-                                    required
-                                >
-                                    <option value="To Do">To Do</option>
-                                    <option value="In Progress">In Progress</option>
-                                    <option value="Done">Done</option>
-                                </select>
-                            </div> */}
-
-                            <div className="buttons">
-                                <button type="submit">Submit</button>
-                                <button type="reset" onClick={()=>resetForm()}>Cancel</button>
-                            </div>
-
-                        </form>
+            <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title={headingText}>
+                <form onSubmit={handleSubmit} className="mt-4">
+                    <div className="form-row mb-4">
+                        <label htmlFor="name" className="block text-sm font-medium mb-1">Name:</label>
+                        <input
+                            className="w-full"
+                            value={form.name}
+                            onChange={handleChange}
+                            id="name"
+                            name="name"
+                            type="text"
+                            required
+                        />
                     </div>
-                </div>
-            }
+
+                    <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                        <h4 className="text-sm font-bold mb-2">Primary Passcode</h4>
+                        <div className="form-row mb-2">
+                            <label className="block text-sm font-medium mb-1">Question:</label>
+                            <input
+                                className="w-full"
+                                value={form.passcode[0]?.question || ''}
+                                onChange={(e) => handlePasscodeChange('question', e.target.value)}
+                                type="text"
+                                required
+                            />
+                        </div>
+                        <div className="form-row mb-4">
+                            <label className="block text-sm font-medium mb-1">Answer:</label>
+                            <input
+                                className="w-full"
+                                value={form.passcode[0]?.answer || ''}
+                                onChange={(e) => handlePasscodeChange('answer', e.target.value)}
+                                type="text"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex gap-2 justify-end mt-6">
+                        <button type="button" onClick={() => setIsOpen(false)} className="bg-gray-300 text-black">
+                            Cancel
+                        </button>
+                        <button type="submit" disabled={saveMutation.isPending}>
+                            {saveMutation.isPending ? 'Saving...' : 'Submit'}
+                        </button>
+                    </div>
+                </form>
+            </Modal>
         </>
-    )
+    );
 }
 
-export default CohortForm
+export default CohortForm;

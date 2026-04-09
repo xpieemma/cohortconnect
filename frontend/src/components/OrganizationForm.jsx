@@ -4,11 +4,12 @@ import { useUser } from "../context/UserContext";
 import { useLoading } from "../context/LoadingContext"
 import { useForm } from "../hooks/useForm";
 import './Modal/Modal.css'
+import {api} from "../clients/api"
 
 function OrganizationForm({ organization, setOrganizations, btnText = '+', headingText = 'Project' }) {
     const { user } = useUser()
     const { startLoading, stopLoading } = useLoading()
-    const [ users, setUsers ] = useState([])
+    const [ setUsers ] = useState([])
     const {
             modal,
             toggleModal,
@@ -83,7 +84,7 @@ function OrganizationForm({ organization, setOrganizations, btnText = '+', headi
             // else, if adding new organization
 
                 // send the form data to our backend
-                const { data } = await organizationClient.post('/', {...form, collaborators: collaborators})
+                const { data } = await api.post('/organizations', {...form, collaborators: collaborators})
             
                 // update the organizations state
                 setOrganizations(prev => [...prev, data])
